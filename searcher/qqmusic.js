@@ -90,7 +90,7 @@ export function getLyrics(meta, man) {
                     lyricMeta.artist = song.artist;
                     lyricMeta.album = song.album;
                     lyricMeta.lyricData = lyricData;
-                    lyricData.fileType = 'qrc';
+                    lyricMeta.fileType = 'qrc';
                     man.addLyric(lyricMeta);
                     ++qrcCount;
                 }
