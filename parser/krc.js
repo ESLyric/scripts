@@ -9,11 +9,9 @@ export function getConfig(cfg) {
 
 export function parseLyric(context) {
     let zipData = xorKRC(context.lyricData);
-    if (!zipData)
-        return;
+    if (!zipData) return;
     let unzipData = zlib.uncompress(zipData.buffer);
-    if (unzipData == null)
-        return;
+    if (unzipData == null) return;
     context.lyricText = krc2lrc(arrayBufferToString(unzipData));
 }
 
@@ -56,7 +54,6 @@ function krc2lrc(krcText) {
     for (const line of lines) {
         if (matches = metaRegex.exec(line)) { // meta info
             lyricText += matches[0] + "\r\n";
-            console.log(matches[0]);
         } else if (matches = timestampsRegex.exec(line)) {
             let lyricLine = "";
             let startTime = parseInt(matches[1]);

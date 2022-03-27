@@ -30,7 +30,7 @@ function qrcToLrc(xmlText) {
         xmlRoot = mxml.loadString(xmlText);
     }
     if (xmlRoot == null) {
-        console.log(xmlText);
+        //console.log(xmlText);
         return;
     }
     var lyricElement = xmlRoot.findElement("Lyric_1", mxml.MXML_DESCEND);
