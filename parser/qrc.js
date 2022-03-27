@@ -9,10 +9,8 @@ export function getConfig(cfg) {
 }
 
 export function parseLyric(context) {
-    console.log("parselyric");
     var zipData = decoder.decodeQrc(context.lyricData);
     if (zipData == null) return;
-    console.log("unziped");
     var unzipData = zlib.uncompress(zipData);
     if (unzipData == null) return;
     var lyricText = qrcToLrc(arrayBufferToString(unzipData));
@@ -20,8 +18,21 @@ export function parseLyric(context) {
     context.lyricText = lyricText;
 }
 
+function escapeXml(xmlText)
+{
+    return xmlText.replace(/&/g, '&amp;');
+}
+
 function qrcToLrc(xmlText) {
     var xmlRoot = mxml.loadString(xmlText);
+    if (xmlRoot == null) {
+        xmlText = escapeXml(xmlText);
+        xmlRoot = mxml.loadString(xmlText);
+    }
+    if (xmlRoot == null) {
+        console.log(xmlText);
+        return;
+    }
     var lyricElement = xmlRoot.findElement("Lyric_1", mxml.MXML_DESCEND);
     if (lyricElement == null)
         return null;
