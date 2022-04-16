@@ -6,7 +6,6 @@ export function getConfig(cfg) {
     cfg.name = "酷狗音乐";
     cfg.version = "0.1";
     cfg.author = "anonymous";
-    cfg.useRawMeta = false;
 }
 
 export function getLyrics(meta, man) {

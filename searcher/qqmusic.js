@@ -8,7 +8,6 @@ export function getConfig(cfg) {
     cfg.name = "QQ音乐";
     cfg.version = "0.1";
     cfg.author = "ohyeah";
-    cfg.useRawMeta = false;
 }
 
 export function getLyrics(meta, man) {

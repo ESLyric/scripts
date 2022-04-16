@@ -4,14 +4,13 @@ var SERVER_2 = "http://ttlrccnc.qianqian.com";
 
 var SERVER = SERVER_1;
 
-export function getConfig(config) {
-    config.name = "千千静听(已失效)";
+export function get_config(config) {
+    config.name = "千千静听(已废弃)";
     config.version = "0.3";
     config.author = "ohyeah";
-    config.useRawMeta = false;
 }
 
-export function getLyrics(meta, man) {
+export function get_lyrics(meta, man) {
     var title = meta.title;
     var artist = meta.artist;
     var lyrics_arr = [];

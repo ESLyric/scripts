@@ -74,12 +74,11 @@ export function getConfig(config) {
     config.name = "网易云音乐";
     config.version = "0.1";
     config.author = "ohyeah";
-    config.useRawMeta = true;
 }
 
 export function getLyrics(meta, man) {
-    var title = procKeywords(meta.title);
-    var artist = procKeywords(meta.artist);
+    var title = procKeywords(meta.rawTitle);
+    var artist = procKeywords(meta.rawArtist);
     const data = {
         s: title + " " + artist,
         type: 1,
