@@ -24,13 +24,18 @@ function escapeXml(xmlText)
 }
 
 function qrcToLrc(xmlText) {
+
+    if (xmlText != null && typeof xmlText === 'string' && xmlText.indexOf('<?xml') == -1) {
+        return xmlText;
+    }
+
     var xmlRoot = mxml.loadString(xmlText);
     if (xmlRoot == null) {
         xmlText = escapeXml(xmlText);
         xmlRoot = mxml.loadString(xmlText);
     }
     if (xmlRoot == null) {
-        //console.log(xmlText);
+        console.log("parse xml failed: " + xmlText);
         return;
     }
     var lyricElement = xmlRoot.findElement("Lyric_1", mxml.MXML_DESCEND);

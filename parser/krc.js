@@ -9,9 +9,11 @@ export function getConfig(cfg) {
 
 export function parseLyric(context) {
     let zipData = xorKRC(context.lyricData);
-    if (!zipData) return;
+    if (!zipData)
+        return;
     let unzipData = zlib.uncompress(zipData.buffer);
-    if (unzipData == null) return;
+    if (unzipData == null)
+        return;
     context.lyricText = krc2lrc(arrayBufferToString(unzipData));
 }
 

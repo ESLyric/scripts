@@ -28,13 +28,13 @@ export function getLyrics(meta, man) {
     var headers = {};
     headers['Referer'] = 'https://y.qq.com';
 
-    settings = {
+    let settings = {
         method: 'get',
         url: url,
         headers: headers
     };
 
-    var stage_song_list = [];
+    var stageSongList = [];
     request(settings, (err, res, body) => {
         if (err || res.statusCode != 200) {
             return;
@@ -48,16 +48,140 @@ export function getLyrics(meta, man) {
             var artist = decodeURIComponent(getChildElementCDATA(song, 'singername'));
             var album = decodeURIComponent(getChildElementCDATA(song, 'albumname'));
 
-            stage_song_list.push({ id: id, title: title, artist: artist, album: album });
+            stageSongList.push({ id: id, title: title, artist: artist, album: album });
         }
 
     });
 
-    var qrcCount = 0;
-    var lyricMeta = man.createLyric();
-    for (const song of stage_song_list) {
-        url = 'https://c.y.qq.com/qqmusic/fcgi-bin/lyric_download.fcg?';
-        data = {
+    if (stageSongList.length > 0) {
+        let lyricCount = queryLyricV3(meta, man, stageSongList);
+        if (lyricCount == null || lyricCount < 1) {
+            queryLyricV2(meta, man, stageSongList);
+        }
+    }
+
+    // obsolete
+    //queryLyric(meta, man);
+
+}
+
+function queryLyricV3(meta, man, songList)
+{
+    let lyricCount = 0;
+    let headers = {};
+    headers['Referer'] = 'https://y.qq.com';
+    headers['Host'] = 'u.y.qq.com';
+    // notes: some params may not be required, I'm not tested.
+    let postData = {
+        comm: {
+            _channelid: '0',
+            _os_version: '6.2.9200-2',
+            authst: '',
+            ct: '19',
+            cv: '1873',
+            //guid: '30D1D7C616938DDB575AF16E56D44BD4',
+            patch: '118',
+            psrf_access_token_expiresAt: 0,
+            psrf_qqaccess_token: '',
+            psrf_qqopenid: '',
+            psrf_qqunionid: '',
+            tmeAppID: 'qqmusic',
+            tmeLoginType: 2,
+            uin: '0',
+            wid: '0'
+        },
+        'music.musichallSong.PlayLyricInfo.GetPlayLyricInfo': {
+            method: 'GetPlayLyricInfo',
+            module: 'music.musichallSong.PlayLyricInfo'
+        }
+    };
+
+    for(const song of songList) {
+        let songID = song.id | 0;
+        postData['music.musichallSong.PlayLyricInfo.GetPlayLyricInfo']['param'] = {
+            albumName : btoa(song.album),
+            crypt : 1,
+            ct : 19,
+            cv : 1873,
+            interval : meta.duration | 0,
+            lrc_t : 0,
+            qrc : 1,
+            qrc_t : 0,
+            roma : 1,
+            roma_t : 0,
+            singerName : btoa(song.album),
+            songID : songID,
+            songName : btoa(song.artist),
+            trans : 1,
+            trans_t : 0,
+            type : -1
+        }
+
+        let url = 'https://u.y.qq.com/cgi-bin/musicu.fcg?';
+        let params = {
+            pcachetime: new Date().getTime() | 0
+        }
+        url += querystring.stringify(params);
+        let postDataString = JSON.stringify(postData);
+        let settings = {
+            method: 'post',
+            url: url,
+            headers: headers,
+            body: postDataString
+        };
+    
+        request(settings, (err, res, body) => {
+            if (err || res.statusCode != 200) {
+                return;
+            }
+            
+            try {
+                let obj = JSON.parse(body);
+                if (obj['code'] != 0) {
+                    return;
+                }
+
+                let lyricObjRoot = obj['music.musichallSong.PlayLyricInfo.GetPlayLyricInfo'];
+                if (lyricObjRoot['code'] != 0) {
+                    return;
+                }
+
+                let lyricObj = lyricObjRoot['data'];
+                if (lyricObj['songID'] != songID) {
+                    return;
+                }
+
+                var lyricMeta = man.createLyric();
+                let lyricData = restoreQrc(lyricObj['lyric']);
+                if (lyricData == null) {
+                    return;
+                }
+
+                lyricMeta.title = song.title;
+                lyricMeta.artist = song.artist;
+                lyricMeta.album = song.album;
+                lyricMeta.fileType = 'qrc';
+                lyricMeta.lyricData = lyricData;
+                man.addLyric(lyricMeta);
+                ++lyricCount;
+
+            } catch (e) {
+                console.log("[qqmusic]request lyric exception: " + e.message);
+            }
+        });
+    }
+
+    return lyricCount;
+}
+
+function queryLyricV2(meta, man, songList)
+{
+    let headers = {};
+    headers['Referer'] = 'https://y.qq.com';
+
+    for (const song of songList) {
+        let url = 'https://c.y.qq.com/qqmusic/fcgi-bin/lyric_download.fcg?';
+        let data = {
             version: '15',
             miniversion: '82',
             lrctype: '4',
@@ -65,7 +189,7 @@ export function getLyrics(meta, man) {
         };
         url += querystring.stringify(data);
 
-        settings = {
+        let settings = {
             method: 'get',
             url: url,
             headers: headers
@@ -77,13 +201,14 @@ export function getLyrics(meta, man) {
             }
 
             body = body.replace('<!--', '').replace('-->', '').replace(/<miniversion.*\/>/, '').trim();
-            var xml_root = mxml.loadString(body);
-            if (xml_root != null) {
-                var lyrics = xml_root.findElement('lyric') || [];
-                for (const lyric_entry of lyrics) {
-                    var content = getChildElementCDATA(lyric_entry, 'content');
+            let xmlRoot = mxml.loadString(body);
+            if (xmlRoot != null) {
+                let lyricMeta = man.createLyric();
+                let lyrics = xmlRoot.findElement('lyric') || [];
+                for (const lyricEntry of lyrics) {
+                    let content = getChildElementCDATA(lyricEntry, 'content');
                     if (content == null) continue;
-                    var lyricData = restoreQrc(content);
+                    let lyricData = restoreQrc(content);
                     if (lyricData == null) continue;
                     lyricMeta.title = song.title;
                     lyricMeta.artist = song.artist;
@@ -91,17 +216,21 @@ export function getLyrics(meta, man) {
                     lyricMeta.lyricData = lyricData;
                     lyricMeta.fileType = 'qrc';
                     man.addLyric(lyricMeta);
-                    ++qrcCount;
                 }
             }
         });
     }
+}
+
+function queryLyric(meta, man)
+{
+    let headers = {};
+    headers['Referer'] = 'https://y.qq.com';
 
     // qury LRC lyrics
-    var queryNum = qrcCount > 1 ? 5 : 10;
-    url = 'http://c.y.qq.com/soso/fcgi-bin/client_search_cp?';
-    var t = 0;
-    data = {
+    let queryNum = 10;
+    let url = 'http://c.y.qq.com/soso/fcgi-bin/client_search_cp?';
+    let data = {
         format: 'json',
         n: queryNum,
         p: 0,
@@ -117,8 +246,9 @@ export function getLyrics(meta, man) {
         headers: headers
     };
 
-    stage_song_list = [];
+    let stageSongList = [];
     request(settings, (err, res, body) => {
+        console.log(err + url);
         if (!err && res.statusCode === 200) {
             try {
                 var obj = JSON.parse(body);
@@ -137,7 +267,7 @@ export function getLyrics(meta, man) {
                     if (songmid === '') {
                         continue;
                     }
-                    stage_song_list.push({ title: title, album: album, artist: artist, songmid: songmid });
+                    stageSongList.push({ title: title, album: album, artist: artist, songmid: songmid });
                 }
             } catch (e) {
                 console.log('qqmusic exception: ' + e.message);
@@ -146,7 +276,7 @@ export function getLyrics(meta, man) {
     });
 
     var lyricMeta = man.createLyric();
-    for (const result of stage_song_list) {
+    for (const result of stageSongList) {
         url = 'http://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?';
         data = {
             songmid: result.songmid,
