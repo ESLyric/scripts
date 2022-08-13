@@ -1,0 +1,105 @@
+{
+    "sources": [
+        {
+            "name": "酷狗音乐",
+            "version": "0.1",
+            "author": "anonymous",
+            "uri": "kugou.js",
+            "dependency": {
+                "parsers": [
+                    "KRC Parser"
+                ]
+            }
+        },
+        {
+            "name": "Musixmatch",
+            "version": "0.1",
+            "author": "ohyeah",
+            "uri": "musixmatch.js",
+            "dependency": {
+                "client": "0.5.2.1120",
+                "libs": [
+                    "querystring"
+                ]
+            }
+        },
+        {
+            "name": "网易云音乐",
+            "version": "0.1",
+            "author": "ohyeah",
+            "uri": "netease.js",
+            "dependency": {
+                "libs": [
+                    "CryptoES",
+                    "querystring"
+                ]
+            }
+        },
+        {
+            "name": "QQ音乐",
+            "version": "0.1",
+            "author": "ohyeah",
+            "uri": "qqmusic.js",
+            "dependency": {
+                "parsers": [
+                    "QRC Parser"
+                ],
+                "libs": [
+                    "querystring"
+                ]
+            }
+        },
+        {
+            "name": "MiniLyrics",
+            "version": "0.1",
+            "author": "ohyeah",
+            "uri": "minilyrics.js",
+            "dependency": {
+                "client": "0.5.2.1123",
+                "libs": [
+                    "CryptoES"
+                ]
+            }
+        }
+    ],
+    "parsers": [
+        {
+            "name": "KRC Parser",
+            "author": "ohyeah",
+            "version": "0.1",
+            "uri": "krc.js"
+        },
+        {
+            "name": "QRC Parser",
+            "author": "wistaria",
+            "version": "0.1",
+            "uri": "qrc.js",
+            "dependency": {
+                "libs": [
+                    "Parser Extension"
+                ]
+            }
+        },
+        {
+            "name": "SRT Parser",
+            "author": "wistaria",
+            "version": "0.1",
+            "uri": "srt.js"
+        }
+    ],
+    "libs": [
+        {
+            "name": "CryptoES",
+            "uri": "crypto-es.zip"
+        },
+        {
+            "name": "querystring",
+            "uri": "querystring.zip"
+        },
+        {
+            "name": "Parser Extension",
+            "uri": "parser_ext.so.zip",
+            "hash": "1b7377e85d9d6b1c048c6a9fe1204b3c"
+        }
+    ]
+}
