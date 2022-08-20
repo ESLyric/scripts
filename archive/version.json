@@ -60,6 +60,28 @@
                     "CryptoES"
                 ]
             }
+        },
+        {
+            "name": "Genius",
+            "version": "0.1",
+            "author": "ohyeah",
+            "uri": "genius.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "AZLyrics",
+            "version": "0.1",
+            "author": "ohyeah",
+            "uri": "azlyrics.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
         }
     ],
     "parsers": [
@@ -95,6 +117,10 @@
         {
             "name": "querystring",
             "uri": "querystring.zip"
+        },
+        {
+            "name": "himalaya",
+            "uri": "himalaya.zip"
         },
         {
             "name": "Parser Extension",
