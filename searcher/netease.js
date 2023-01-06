@@ -72,7 +72,7 @@ const procKeywords = (str) => {
 
 export function getConfig(config) {
     config.name = "网易云音乐";
-    config.version = "0.1";
+    config.version = "0.2";
     config.author = "ohyeah";
 }
 
@@ -85,35 +85,14 @@ export function getLyrics(meta, man) {
         limit: 10,
         offset: 0
     }
+
     doRequest('POST',
         'https://music.163.com/weapi/search/get',
         data,
         { crypto: 'linuxapi' }
     ).then((body) => {
         let candicates = [];
-        try {
-            let obj = JSON.parse(body);
-            let results = obj['result'] || {};
-            let songs = results['songs'] || [];
-            for (const song of songs) {
-                if (typeof (song['id']) === 'undefined' || typeof (song['name']) === 'undefined')
-                    continue;
-                let id = song['id'];
-                let title = song['name'];
-                let artist = '';
-                let artists = song['artists'] || [];
-                for (const item of artists) {
-                    if ('name' in item) {
-                        artist = item['name'];
-                        break;
-                    }
-                }
-                let album = song['album'] || {};
-                album = album['name'] || '';
-                candicates.push({ id: id, title: title, artist: artist, album: album });
-            }
-        } catch(e){ }
-        var lyricMeta = man.createLyric();
+        candicates = parseSearchResults(body);
         for (const item of candicates) {
             const queryData = {
                 id: item.id
@@ -123,25 +102,122 @@ export function getLyrics(meta, man) {
                 queryData,
                 { crypto: 'linuxapi' }
             ).then((body) => {
-                try {
-                    let lyricObj = JSON.parse(body);
-                    let lyricText = '';
-                    if (lyricObj['lrc']) {
-                        lyricText = lyricObj['lrc']['lyric'] || '';
-                    }
-                    if (lyricObj['tlyric']) {
-                        lyricText += lyricObj['tlyric']['lyric'] || '';
-                    }
-                    lyricMeta.title = item.title;
-                    lyricMeta.artist = item.artist;
-                    lyricMeta.album = item.album;
-                    lyricMeta.lyricText = lyricText;
-                    man.addLyric(lyricMeta);
-                } catch(e){ }
+                parseLyricResponse(item, man, body);
             });
         }
     });
-
     // loop to 'wait' callback(promise)
     messageLoop(0);
+}
+
+function parseSearchResults(body) {
+    let candicates = [];
+    try {
+        let obj = JSON.parse(body);
+        let results = obj['result'] || {};
+        let songs = results['songs'] || [];
+        for (const song of songs) {
+            if (typeof (song['id']) === 'undefined' || typeof (song['name']) === 'undefined')
+                continue;
+            let id = song['id'];
+            let title = song['name'];
+            let artist = '';
+            let artists = song['artists'] || [];
+            for (const item of artists) {
+                if ('name' in item) {
+                    artist = item['name'];
+                    break;
+                }
+            }
+            let album = song['album'] || {};
+            album = album['name'] || '';
+            candicates.push({ id: id, title: title, artist: artist, album: album });
+        }
+    } catch (e) { }
+    return candicates;
+}
+
+function parseLyricResponse(item, man, body) {
+    try {
+        let lyricObj = JSON.parse(body);
+        let lyricText = '';
+        if (lyricObj['lrc']) {
+            lyricText = lyricObj['lrc']['lyric'] || '';
+            let version = lyricObj['lrc']['version'] || 0;
+            if (version == 1) return;
+        }
+        if (lyricObj['tlyric']) {
+            lyricText += lyricObj['tlyric']['lyric'] || '';
+        }
+
+        let meta = man.createLyric();
+        meta.title = item.title;
+        meta.artist = item.artist;
+        meta.album = item.album;
+        meta.lyricText = lyricText;
+        man.addLyric(meta);
+        /*
+        lyricText = '';
+        if (lyricObj['klyric']) {
+            lyricText = lyricObj['klyric']['lyric'] || '';
+        }
+
+        if (lyricText != '') {
+            meta.title += ' (Enhanced LRC)';
+            meta.lyricText = parseKLyric(lyricText);
+            console.log(meta.lyricText);
+            man.addLyric(meta);
+        }
+        */
+    } catch (e) { console.log(e); }
+}
+
+function parseKLyric(lyricText)
+{
+    let enhancedlyricText = "";
+    let matches;
+    let metaRegex = /^\[(\S+):(\S+)\]$/;
+    let timestampsRegex = /^\[(\d+),(\d+)\]/;
+    let timestamps2Regex = /\((\d+),(\d+)\)([^\(]*)/g;
+    let lines = lyricText.split(/[\r\n]/);
+    for (const line of lines) {
+        console.log(line);
+        if (matches = metaRegex.exec(line)) { // meta info
+            enhancedlyricText += matches[0] + "\r\n";
+        } else if (matches = timestampsRegex.exec(line)) {
+            let lyricLine = "";
+            let startTime = parseInt(matches[1]);
+            let duration = parseInt(matches[2]);
+            lyricLine = "[" + formatTime(startTime) + "]";
+            // parse sub-timestamps
+            let subMatches;
+            let subStartTime = startTime;
+            while (subMatches = timestamps2Regex.exec(line)) {
+                let subDuration = parseInt(subMatches[2]);
+                let subWord = subMatches[3];
+                lyricLine += "<" + formatTime(subStartTime) + ">" + subWord;
+                subStartTime += subDuration;
+            }
+            lyricLine += "<" + formatTime(startTime + duration) + ">";
+            enhancedlyricText += lyricLine + "\r\n";
+        }
+    }
+    return enhancedlyricText;
+}
+
+function zpad(n) {
+    var s = n.toString();
+    return (s.length < 2) ? "0" + s : s;
+}
+
+function formatTime(time) {
+    var t = Math.abs(time / 1000);
+    var h = Math.floor(t / 3600);
+    t -= h * 3600;
+    var m = Math.floor(t / 60);
+    t -= m * 60;
+    var s = Math.floor(t);
+    var ms = t - s;
+    var str = (h ? zpad(h) + ":" : "") + zpad(m) + ":" + zpad(s) + "." + zpad(Math.floor(ms * 100));
+    return str;
 }
