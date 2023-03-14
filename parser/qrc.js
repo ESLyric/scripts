@@ -2,7 +2,7 @@ import * as decoder from "parser_ext.so";
 
 export function getConfig(cfg) {
     cfg.name = "QRC Parser";
-    cfg.version = "0.1";
+    cfg.version = "0.2";
     cfg.author = "wistaria";
     cfg.parsePlainText = false;
     cfg.fileType = "qrc";
