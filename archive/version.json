@@ -94,7 +94,7 @@
         {
             "name": "QRC Parser",
             "author": "wistaria",
-            "version": "0.1",
+            "version": "0.2",
             "uri": "qrc.js",
             "dependency": {
                 "libs": [

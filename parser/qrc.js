@@ -2,7 +2,7 @@ import * as decoder from "parser_ext.so";
 
 export function getConfig(cfg) {
     cfg.name = "QRC Parser";
-    cfg.version = "0.1";
+    cfg.version = "0.2";
     cfg.author = "wistaria";
     cfg.parsePlainText = false;
     cfg.fileType = "qrc";
@@ -53,35 +53,9 @@ function qrcToLrc(xmlText) {
     if (qrcText == null)
         return null;
 
-    var lyricText = "";
-    var matches;
-    var metaRegex = /^\[(\S+):(\S+)\]$/;
-    var tsRegex = /^\[(\d+),(\d+)\]/;
-    var ts2Regex = /([^(^\]]*)\((\d+),(\d+)\)/g;
-    var lines = qrcText.split(/[\r\n]/);
-    for (const line of lines) {
-        //console.log(line);
-        if (matches = metaRegex.exec(line)) { // meta info
-            lyricText += matches[0] + "\r\n";
-        } else if (matches = tsRegex.exec(line)) {
-            let lyricLine = "";
-            let baseTime = parseInt(matches[1]);
-            let duration = parseInt(matches[2]);
-            lyricLine += "[" + formatTime(baseTime) + "]";
-            lyricLine += "<" + formatTime(baseTime) + ">";
-            // parse sub-timestamps
-            let subMatches;
-            while (subMatches = ts2Regex.exec(line)) {
-                var startTime = parseInt(subMatches[2]);
-                let offset = parseInt(subMatches[3]);
-                let subWord = subMatches[1];
-                lyricLine += subWord + "<" + formatTime(startTime + offset) + ">";
-            }
-            lyricText += lyricLine + "\r\n";
-        }
-    }
-
-    return lyricText;
+    return qrcText
+        .replace(/^\[(\d+),(\d+)\]/gm, (_, base, __) => `[${formatTime(+base)}]<${formatTime(+base)}>`)
+        .replace(/\((\d+),(\d+)\)/g, (_, start, offset) => `<${formatTime(+start + +offset)}>`);
 }
 
 function zpad(n) {
