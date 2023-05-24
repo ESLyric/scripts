@@ -1,6 +1,6 @@
 export function getConfig(cfg) {
     cfg.name = "SRT Parser";
-    cfg.version = "0.1";
+    cfg.version = "0.2";
     cfg.author = "wistaria";
     cfg.parsePlainText = true;
     cfg.fileType = "srt";
