@@ -35,6 +35,6 @@ function formatTime(time) {
     t -= m * 60;
     var s = Math.floor(t);
     var ms = t - s;
-    var str = (h ? zpad(h) + ":" : "") + zpad(m) + ":" + zpad(s) + "." + zpad(Math.floor(ms * 100));
+    var str = zpad(m + h*60) + ":" + zpad(s) + "." + zpad(Math.floor(ms * 100));
     return str;
 }
