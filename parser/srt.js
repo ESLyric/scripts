@@ -16,7 +16,7 @@ export function parseLyric(context) {
     let lrcText = '';
     let srtBlocks = parser.fromSrt(context.lyricText, true);
     for(const block of srtBlocks) {
-        lrcText += '[' + formatTime(block.startTime) + ']' + block.text.replace(/\n/g, ' ') + '\r\n';
+        lrcText += '[' + formatTime(block.startTime) + ']' + block.text.replace(/\r\n/g, ' ') + '\r\n';
     }
     
     context.lyricText = lrcText;
