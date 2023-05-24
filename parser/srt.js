@@ -1,6 +1,6 @@
 export function getConfig(cfg) {
     cfg.name = "SRT Parser";
-    cfg.version = "0.2";
+    cfg.version = "0.3";
     cfg.author = "wistaria";
     cfg.parsePlainText = true;
     cfg.fileType = "srt";
@@ -16,7 +16,7 @@ export function parseLyric(context) {
     let lrcText = '';
     let srtBlocks = parser.fromSrt(context.lyricText, true);
     for(const block of srtBlocks) {
-        lrcText += '[' + formatTime(block.startTime) + ']' + block.text + '\r\n';
+        lrcText += '[' + formatTime(block.startTime) + ']' + block.text.replace(/\n/g, '') + '\r\n';
     }
     
     context.lyricText = lrcText;
