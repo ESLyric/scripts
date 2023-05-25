@@ -105,7 +105,7 @@
         {
             "name": "SRT Parser",
             "author": "wistaria",
-            "version": "0.2",
+            "version": "0.3",
             "uri": "srt.js"
         }
     ],
