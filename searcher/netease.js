@@ -74,7 +74,7 @@ const procKeywords = (str) => {
 
 export function getConfig(config) {
     config.name = "网易云音乐";
-    config.version = "0.2";
+    config.version = "0.3";
     config.author = "ohyeah";
 }
 
