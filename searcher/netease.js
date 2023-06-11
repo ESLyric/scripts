@@ -40,8 +40,8 @@ const doRequest = (method, url, data, options) => {
                 params: data
             });
             headers['User-Agent'] = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36';
-            url = 'https://music.163.com/api/linux/forward';
             headers['Cookie'] = `MUSIC_A=${anonymousToken}`
+            url = 'https://music.163.com/api/linux/forward';
         } else {
             reject();
             return;
