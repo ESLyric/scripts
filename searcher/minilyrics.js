@@ -2,20 +2,21 @@
 /**
  * https://github.com/entronad/crypto-es
  * https://github.com/olee/minilyrics-proxy/blob/master/minilyricsApi.ts
+ * refactoring by TT-ReBORN https://github.com/TT-ReBORN
  */
 
 import crypto from 'crypto-es/lib/index.js';
 
 export function getConfig(cfg) {
     cfg.name = "MiniLyrics";
-    cfg.version = "0.1";
-    cfg.author = "ohyeah";
+    cfg.version = "0.2";
+    cfg.author = "ohyeah & TT";
     cfg.useRawMeta = false;
 }
 
 
 export function getLyrics(meta, man) {
-    let writer = new CompressedXmlWriter();
+    const writer = new CompressedXmlWriter();
     writer.addST('filetype', 'lyrics');
     writer.addST('artist', meta.artist);
     writer.addST('title', meta.title);
@@ -23,54 +24,50 @@ export function getLyrics(meta, man) {
     writer.addST('ProtoVer', '0.9');
     writer.addST('OnlyMatched', '1');
     writer.addST('ClientCharEncoding', 'utf-8');
-    let xmlData = writer.write();
+    const xmlData = writer.write();
 
     let settings = {
         url: 'http://search.crintsoft.com/searchlyrics.htm',
         method: 'POST',
-        headers: {
-            'User-Agent': 'MiniLyrics 7.6.41 for Foobar2000',
-        },
+        headers: { 'User-Agent': 'MiniLyrics 7.6.41 for Foobar2000' },
         raw: true,
         body: encryptBuffer(xmlData)
     }
 
-    let lyricResults = [];
+    const lyricResults = [];
     request(settings, (err, res, body) => {
-        if (err || res.statusCode != 200) {
+        if (err || res.statusCode !== 200) {
             return;
         }
 
-        let cxmlReader = new CompressedXmlReader(decryptBuffer(Uint8Array.from(body)).buffer);
-        let results = cxmlReader.read();
+        const cxmlReader = new CompressedXmlReader(decryptBuffer(Uint8Array.from(body)).buffer);
+        const results = cxmlReader.read();
         if (results === null) return;
-        let server_url = results['server_url'] || '';
+        const server_url = results.server_url || '';
         if (server_url === '') return;
-        let children = results['children'] || [];
+        const children = results.children || [];
         if (children.length === 0) return;
         for (const child of children) {
-            let _type = child['_type'] || '';
-            let link = child['link'] || '';
-            let artist = child['artist'] || '';
-            let title = child['title'] || '';
-            let album = child['album'] || '';
-            let url = server_url + link;
-            lyricResults.push({_type: _type, url: url, artist: artist, title: title, album: album});
+            const _type = child._type || '';
+            const link = child.link || '';
+            const artist = child.artist || '';
+            const title = child.title || '';
+            const album = child.album || '';
+            const url = server_url + link;
+            lyricResults.push({ _type, url, artist, title, album });
         }
     });
 
-    let lyricMeta = man.createLyric();
+    const lyricMeta = man.createLyric();
     for (const entry of lyricResults) {
         settings = {
             url: entry.url,
             method: 'GET',
-            headers: {
-                'User-Agent': 'MiniLyrics 7.6.41 for Foobar2000',
-            }
+            headers: { 'User-Agent': 'MiniLyrics 7.6.41 for Foobar2000' }
         }
-        
+
         request(settings, (err, res, body) => {
-            if (err || res.statusCode != 200) {
+            if (err || res.statusCode !== 200) {
                 return;
             }
 
@@ -96,7 +93,7 @@ function encryptBuffer(data) {
         queryBytes[i] = key ^ queryBytes[i];
     }
 
-    let rcData = [
+    const rcData = [
         0x02,
         key,
         0x04,
@@ -104,7 +101,7 @@ function encryptBuffer(data) {
         0x00,
         0x00,
         ...md5Bytes,
-        ...queryBytes,
+        ...queryBytes
     ];
 
     //console.log(buf2hex(rcData));
@@ -122,11 +119,10 @@ function decryptBuffer(byteBuffer) {
 }
 
 function wordToU8Array(wordArray) {
-    let words = wordArray.words;
-    let sigBytes = wordArray.sigBytes;
-    let u8 = new Uint8Array(sigBytes);
+    const { words, sigBytes } = wordArray;
+    const u8 = new Uint8Array(sigBytes);
     for (let i = 0; i < sigBytes; i++) {
-        let byte = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+        const byte = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
         u8[i] = byte;
     }
     return u8;
@@ -155,7 +151,6 @@ function buf2hex(buffer) { // buffer is an ArrayBuffer
 }
 
 class CompressedXmlWriter {
-
     constructor() {
         this.stringTable = new Map();
     }
@@ -179,18 +174,17 @@ class CompressedXmlWriter {
     }
 
     writeBody() {
-        let stSize = this.getSTSize();
+        const stSize = this.getSTSize();
         this.cxmlBody = new ArrayBuffer(2 + 4 + 4 + 9 + stSize + 2);
-        let bodyView = new DataView(this.cxmlBody);
-        let _this = this;
+        const bodyView = new DataView(this.cxmlBody);
         // header guard - 2 bytes
         bodyView.setUint8(0, 0x53);
         bodyView.setUint8(1, 0x54);
 
         let position = 2 + 4 + 4;
-        let appendStringCharCode = function (stringToAppend) {
-            let u8 = new Uint8Array(stringToArrayBuffer(stringToAppend));
-            new Uint8Array(_this.cxmlBody).set(u8, position);
+        const appendStringCharCode = (stringToAppend) => {
+            const u8 = new Uint8Array(stringToArrayBuffer(stringToAppend));
+            new Uint8Array(this.cxmlBody).set(u8, position);
             position += u8.byteLength;
             bodyView.setUint8(position, 0);
             position += 1;
@@ -218,7 +212,7 @@ class CompressedXmlWriter {
 
     writeTail() {
         this.cxmlTail = new ArrayBuffer(4 + 1 + 2 * this.stringTable.size + 1 + 1);
-        let tailView = new DataView(this.cxmlTail);
+        const tailView = new DataView(this.cxmlTail);
         tailView.setUint32(0, 2 * this.stringTable.size + 1 + 1 + 1, true);
         tailView.setUint8(4, 0x02);
         tailView.setUint8(5, 0x0a);
@@ -248,15 +242,12 @@ class CompressedXmlWriter {
 
         return stSize;
     }
-
 }
 
 class CompressedXmlReader {
-
-    position = 0;
-    stringTable = [];
-
     constructor(buffer) {
+        this.position = 0;
+        this.stringTable = [];
         this.buffer = new DataView(buffer);
     }
 
@@ -296,7 +287,7 @@ class CompressedXmlReader {
     }
 
     popValue() {
-        return this.stringTable[this.readByte() - 10];;
+        return this.stringTable[this.readByte() - 10];
     }
 
     readHeader() {
@@ -308,8 +299,9 @@ class CompressedXmlReader {
             this.readChar() !== '1') {
             throw new Error('MBXML header missmatch');
         }
-        if (this.readInt() !== 2)
+        if (this.readInt() !== 2) {
             throw new Error('Header version mismatch');
+        }
         // end of stream is encoded here, but it counts starting from the header (MBXML1)
         const fileEnd = this.readInt() - 6 - 4 - 4 - 2;
     }
@@ -319,7 +311,7 @@ class CompressedXmlReader {
             throw new Error('String table header missmatch');
         }
 
-        // size of string table in bytes 
+        // size of string table in bytes
         // (including both int32 values at the beginning)
         const stSize = this.readInt() - 8;
 
@@ -344,7 +336,7 @@ class CompressedXmlReader {
 
     readElement() {
         this.expectByte(2);
-        const node = { _type: this.popValue(), };
+        const node = { _type: this.popValue() };
         // Parse attributes
         while (this.peekByte() >= 10) {
             const key = this.stringTable[this.readByte() - 10];
@@ -375,4 +367,3 @@ class CompressedXmlReader {
         return this.readElement();
     }
 }
-
