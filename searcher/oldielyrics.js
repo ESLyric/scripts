@@ -1,11 +1,11 @@
-﻿import { parse } from 'himalaya/src/index.js';
+import { parse } from 'himalaya/src/index.js';
 
 const lyricContainerElements = [];
 
 export function getConfig(cfg) {
-	cfg.name = 'Genius (Unsynced)';
-	cfg.version = '0.2';
-	cfg.author = 'ohyeah & TT';
+	cfg.name = 'OldieLyrics (Unsynced)';
+	cfg.version = '0.1';
+	cfg.author = 'TT';
 	cfg.useRawMeta = false;
 }
 
@@ -15,12 +15,12 @@ export function getLyrics(meta, man) {
 		.replace(/[^a-z0-9\- ]/g, '')
 		.replace(/@/g, 'at')
 		.replace(/&/g, 'and')
-		.replace(/ /g, '-'); // Genius formatting
+		.replace(/ /g, '_'); // OldieLyrics formatting
 
 	const artist = Clean(meta.artist);
 	const title = Clean(meta.title);
-	const url = `https://genius.com/${artist}-${title}-lyrics`;
-	const settings = { url, timeout: 5000 };
+	const url = `http://oldielyrics.com/lyrics/${artist}/${title}.html`;
+	const settings = { url,	timeout: 5000 };
 
 	if (artist === '' || title === '') return;
 
@@ -36,9 +36,9 @@ export function getLyrics(meta, man) {
 
 		let lyricText = '';
 		if (findLyrics(bodyElement)) {
-			lyricContainerElements.forEach(element => {
+			for (const element of lyricContainerElements) {
 				lyricText = parseLyrics(element, lyricText);
-			});
+			}
 			if (lyricText === '') return;
 			const lyricMeta = man.createLyric();
 			lyricMeta.title = meta.title;
@@ -60,11 +60,7 @@ function findLyrics(rootElement) {
 	}
 
 	for (const attribute of attributes) {
-		if (attribute.key === 'data-lyrics-container' && attribute.value === 'true') {
-			lyricContainerElements.push(rootElement);
-			return true;
-		}
-		if (attribute.key === 'class' && attribute.value.startsWith('Lyrics__Container')) {
+		if (attribute.key === 'id' && attribute.value === 'lyrics') {
 			lyricContainerElements.push(rootElement);
 			return true;
 		}
@@ -103,12 +99,12 @@ function parseLyrics(element, lyricText) {
 		return lyricText + content;
 	}
 
-	if (tag === 'br') {
-		return `${lyricText}\r\n`;
-	}
-
 	for (const child of children) {
 		lyricText = parseLyrics(child, lyricText);
+	}
+
+	if (tag === 'p') { // OldieLyrics formatting
+		return `${lyricText}\n\n`;
 	}
 
 	return Clean(lyricText);

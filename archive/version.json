@@ -12,9 +12,9 @@
             }
         },
         {
-            "name": "Musixmatch",
-            "version": "0.1",
-            "author": "ohyeah",
+            "name": "Musixmatch (Synced)",
+            "version": "0.2",
+            "author": "ohyeah & TT",
             "uri": "musixmatch.js",
             "dependency": {
                 "client": "0.5.2.1120",
@@ -28,6 +28,18 @@
             "version": "0.3",
             "author": "ohyeah",
             "uri": "netease.js",
+            "dependency": {
+                "libs": [
+                    "CryptoES",
+                    "querystring"
+                ]
+            }
+        },
+        {
+            "name": "NetEase - English (Synced)",
+            "version": "0.4",
+            "author": "ohyeah & TT",
+            "uri": "netease_en.js",
             "dependency": {
                 "libs": [
                     "CryptoES",
@@ -62,9 +74,9 @@
             }
         },
         {
-            "name": "Genius",
-            "version": "0.1",
-            "author": "ohyeah",
+            "name": "Genius (Unsynced)",
+            "version": "0.2",
+            "author": "ohyeah & TT",
             "uri": "genius.js",
             "dependency": {
                 "libs": [
@@ -73,10 +85,160 @@
             }
         },
         {
-            "name": "AZLyrics",
-            "version": "0.1",
-            "author": "ohyeah",
+            "name": "AZLyrics (Unsynced)",
+            "version": "0.2",
+            "author": "ohyeah & TT",
             "uri": "azlyrics.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "AbsoluteLyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "absolutelyrics.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "Bandcamp (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "bandcamp.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "ChartLyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "chartlyrics.js"
+        },
+        {
+            "name": "DarkLyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "darklyrics.js"
+        },
+        {
+            "name": "eLyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "elyrics.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "Letras (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "letras.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "Lyrical Nonsense - Japanese (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "lyricalnonsense.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "Lyrical Nonsense - English (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "lyricalnonsense_en.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "LyricsMania (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "lyricsmania.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "LyricsMode (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "lyricsmode.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "LyricsTranslate (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "lyricstranslate.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "OldieLyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "oldielyrics.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "PLyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "plyrics.js"
+        },
+        {
+            "name": "SongLyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "songlyrics.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "STLyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "stlyrics.js",
             "dependency": {
                 "libs": [
                     "himalaya"

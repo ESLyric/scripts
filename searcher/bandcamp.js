@@ -1,11 +1,11 @@
-﻿import { parse } from 'himalaya/src/index.js';
+import { parse } from 'himalaya/src/index.js';
 
 const lyricContainerElements = [];
 
 export function getConfig(cfg) {
-	cfg.name = 'Genius (Unsynced)';
-	cfg.version = '0.2';
-	cfg.author = 'ohyeah & TT';
+	cfg.name = 'Bandcamp (Unsynced)';
+	cfg.version = '0.1';
+	cfg.author = 'TT';
 	cfg.useRawMeta = false;
 }
 
@@ -15,11 +15,24 @@ export function getLyrics(meta, man) {
 		.replace(/[^a-z0-9\- ]/g, '')
 		.replace(/@/g, 'at')
 		.replace(/&/g, 'and')
-		.replace(/ /g, '-'); // Genius formatting
+		.replace(/ /g, '-'); // Bandcamp formatting
 
 	const artist = Clean(meta.artist);
 	const title = Clean(meta.title);
-	const url = `https://genius.com/${artist}-${title}-lyrics`;
+
+	// ! Tell ohyeah to implement meta.comment ( %comment% ), meta.label ( %label% ) and meta.publisher ( %publisher% ),
+	// ! then we can use this to improve bandcamp search results:
+	// const commentUrl = getUrlFromTags(meta.comment);
+	// const labelUrl = getUrlFromTags(meta.label);
+	// const publisherUrl = getUrlFromTags(meta.publisher);
+
+	// const url =
+	// 	commentUrl !== '' ? `https://${commentUrl.replace(/-/g, '')}.bandcamp.com/track/${title}` :
+	// 	labelUrl !== '' ? `https://${labelUrl.replace(/-/g, '')}.bandcamp.com/track/${title}` :
+	// 	publisherUrl !== '' ? `https://${publisherUrl.replace(/-/g, '')}.bandcamp.com/track/${title}` :
+	// 	`https://${artist.replace(/-/g, '')}.bandcamp.com/track/${title}`;
+
+	const url = `https://${artist.replace(/-/g, '')}.bandcamp.com/track/${title}`; // Bandcamp formatting, most bands do not have a - in their artist name but titles do
 	const settings = { url, timeout: 5000 };
 
 	if (artist === '' || title === '') return;
@@ -36,9 +49,9 @@ export function getLyrics(meta, man) {
 
 		let lyricText = '';
 		if (findLyrics(bodyElement)) {
-			lyricContainerElements.forEach(element => {
+			for (const element of lyricContainerElements) {
 				lyricText = parseLyrics(element, lyricText);
-			});
+			}
 			if (lyricText === '') return;
 			const lyricMeta = man.createLyric();
 			lyricMeta.title = meta.title;
@@ -48,6 +61,24 @@ export function getLyrics(meta, man) {
 			man.addLyric(lyricMeta);
 		}
 	});
+}
+
+function getUrlFromTag(tag) {
+	const searchQuery = tag.split(' ');
+
+	for (const word of searchQuery) {
+		if ((word.startsWith('http://') || word.startsWith('https://')) && word.endsWith('.bandcamp.com')) { // Get subdomain name
+			const urlRegex = /\/\/([^./]+)/;
+			const match = word.match(urlRegex);
+
+			if (match) {
+				const domain = match[1];
+				return domain.replace(/-/g, ''); // Bandcamp formatting, most bands do not have a - in their artist name
+			}
+		}
+	}
+
+	return '';
 }
 
 function findLyrics(rootElement) {
@@ -60,11 +91,7 @@ function findLyrics(rootElement) {
 	}
 
 	for (const attribute of attributes) {
-		if (attribute.key === 'data-lyrics-container' && attribute.value === 'true') {
-			lyricContainerElements.push(rootElement);
-			return true;
-		}
-		if (attribute.key === 'class' && attribute.value.startsWith('Lyrics__Container')) {
+		if (attribute.key === 'class' && attribute.value === 'tralbumData lyricsText') {
 			lyricContainerElements.push(rootElement);
 			return true;
 		}
@@ -103,8 +130,8 @@ function parseLyrics(element, lyricText) {
 		return lyricText + content;
 	}
 
-	if (tag === 'br') {
-		return `${lyricText}\r\n`;
+	if (tag === 'br') { // Bandcamp formatting
+		return lyricText.replace(/<br>/gi, '');
 	}
 
 	for (const child of children) {

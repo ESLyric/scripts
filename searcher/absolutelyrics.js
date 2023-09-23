@@ -1,11 +1,11 @@
-﻿import { parse } from 'himalaya/src/index.js';
+import { parse } from 'himalaya/src/index.js';
 
 const lyricContainerElements = [];
 
 export function getConfig(cfg) {
-	cfg.name = 'Genius (Unsynced)';
-	cfg.version = '0.2';
-	cfg.author = 'ohyeah & TT';
+	cfg.name = 'AbsoluteLyrics (Unsynced)';
+	cfg.version = '0.1';
+	cfg.author = 'TT';
 	cfg.useRawMeta = false;
 }
 
@@ -15,12 +15,12 @@ export function getLyrics(meta, man) {
 		.replace(/[^a-z0-9\- ]/g, '')
 		.replace(/@/g, 'at')
 		.replace(/&/g, 'and')
-		.replace(/ /g, '-'); // Genius formatting
+		.replace(/ /g, '_'); // AbsoluteLyrics formatting
 
 	const artist = Clean(meta.artist);
 	const title = Clean(meta.title);
-	const url = `https://genius.com/${artist}-${title}-lyrics`;
-	const settings = { url, timeout: 5000 };
+	const url = `http://www.absolutelyrics.com/lyrics/view/${artist}/${title}`;
+	const settings = { url,	timeout: 5000 };
 
 	if (artist === '' || title === '') return;
 
@@ -36,9 +36,9 @@ export function getLyrics(meta, man) {
 
 		let lyricText = '';
 		if (findLyrics(bodyElement)) {
-			lyricContainerElements.forEach(element => {
+			for (const element of lyricContainerElements) {
 				lyricText = parseLyrics(element, lyricText);
-			});
+			}
 			if (lyricText === '') return;
 			const lyricMeta = man.createLyric();
 			lyricMeta.title = meta.title;
@@ -60,11 +60,7 @@ function findLyrics(rootElement) {
 	}
 
 	for (const attribute of attributes) {
-		if (attribute.key === 'data-lyrics-container' && attribute.value === 'true') {
-			lyricContainerElements.push(rootElement);
-			return true;
-		}
-		if (attribute.key === 'class' && attribute.value.startsWith('Lyrics__Container')) {
+		if (attribute.key === 'id' && attribute.value === 'view_lyrics') {
 			lyricContainerElements.push(rootElement);
 			return true;
 		}
@@ -92,19 +88,20 @@ function parseLyrics(element, lyricText) {
 		.replace(/\uFF08/gi, '(')
 		.replace(/\uFF09/gi, ')')
 		.replace(/\u00E2\u20AC\u2122|\u2019|\uFF07|[\u0060\u00B4]|â€™(;|)|â€˜(;|)|&apos(;|)|&#39(;|)|(&#(?:039|8216|8217|8220|8221|8222|8223|x27);)/gi, "'") // Apostrophe variants
-		.replace(/[\u2000-\u200F\u2028-\u202F\u205F-\u206F\u3000\uFEFF]/gi, ' '); // Whitespace variants
+		.replace(/[\u2000-\u200F\u2028-\u202F\u205F-\u206F\u3000\uFEFF]/gi, ' ') // Whitespace variants
+		.replace(/\t/g, ''); // AbsoluteLyrics formatting
 
 	const tag = element.tagName || '';
 	const type = element.type || '';
 	const children = element.children || [];
 	const content = element.content || '';
 
-	if (type === 'text') {
-		return lyricText + content;
+	if (tag === 'br') { // AbsoluteLyrics formatting
+		return lyricText;
 	}
 
-	if (tag === 'br') {
-		return `${lyricText}\r\n`;
+	if (type === 'text') {
+		return lyricText + content;
 	}
 
 	for (const child of children) {

@@ -1,11 +1,11 @@
-﻿import { parse } from 'himalaya/src/index.js';
+import { parse } from 'himalaya/src/index.js';
 
 const lyricContainerElements = [];
 
 export function getConfig(cfg) {
-	cfg.name = 'Genius (Unsynced)';
-	cfg.version = '0.2';
-	cfg.author = 'ohyeah & TT';
+	cfg.name = 'STLyrics (Unsynced)';
+	cfg.version = '0.1';
+	cfg.author = 'TT';
 	cfg.useRawMeta = false;
 }
 
@@ -15,14 +15,15 @@ export function getLyrics(meta, man) {
 		.replace(/[^a-z0-9\- ]/g, '')
 		.replace(/@/g, 'at')
 		.replace(/&/g, 'and')
-		.replace(/ /g, '-'); // Genius formatting
+		.replace(/ /g, ''); // STLyrics formatting
 
-	const artist = Clean(meta.artist);
+	// const artist = Clean(meta.artist); // Soundtracks are only search by album name and track name
+	const album = Clean(meta.album);
 	const title = Clean(meta.title);
-	const url = `https://genius.com/${artist}-${title}-lyrics`;
+	const url = `https://www.stlyrics.com/lyrics/${album}/${title}.htm`;
 	const settings = { url, timeout: 5000 };
 
-	if (artist === '' || title === '') return;
+	if (album === '' || title === '') return;
 
 	request(settings, (err, res, body) => {
 		if (err || res.statusCode !== 200) return;
@@ -36,9 +37,9 @@ export function getLyrics(meta, man) {
 
 		let lyricText = '';
 		if (findLyrics(bodyElement)) {
-			lyricContainerElements.forEach(element => {
+			for (const element of lyricContainerElements) {
 				lyricText = parseLyrics(element, lyricText);
-			});
+			}
 			if (lyricText === '') return;
 			const lyricMeta = man.createLyric();
 			lyricMeta.title = meta.title;
@@ -60,11 +61,7 @@ function findLyrics(rootElement) {
 	}
 
 	for (const attribute of attributes) {
-		if (attribute.key === 'data-lyrics-container' && attribute.value === 'true') {
-			lyricContainerElements.push(rootElement);
-			return true;
-		}
-		if (attribute.key === 'class' && attribute.value.startsWith('Lyrics__Container')) {
+		if (attribute.key === 'id' && attribute.value === 'page') {
 			lyricContainerElements.push(rootElement);
 			return true;
 		}
@@ -103,8 +100,12 @@ function parseLyrics(element, lyricText) {
 		return lyricText + content;
 	}
 
-	if (tag === 'br') {
-		return `${lyricText}\r\n`;
+	if (tag === 'div' && children.length === 0) { // STLyrics formatting
+		return lyricText;
+	}
+
+	if (tag === 'br' || tag === 'span') { // STLyrics formatting
+		return lyricText.replace(/<br>/gi, '');
 	}
 
 	for (const child of children) {
