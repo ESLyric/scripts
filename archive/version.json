@@ -271,7 +271,7 @@
             "name": "Metallum (Unsynced)",
             "version": "0.1",
             "author": "TT",
-            "uri": "Metallum.js",
+            "uri": "metallum.js",
             "dependency": {
                 "libs": [
                     "himalaya"
