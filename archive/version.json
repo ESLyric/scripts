@@ -244,6 +244,50 @@
                     "himalaya"
                 ]
             }
+        },
+        {
+            "name": "Lololyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "lololyrics.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "LyricsOnDemand (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "lyricsondemand.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "Lololyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "Metallum.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "SongMeanings (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "songmeanings.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
         }
     ],
     "parsers": [
