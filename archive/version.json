@@ -1,8 +1,8 @@
 {
     "sources": [
         {
-            "name": "酷狗音乐",
-            "version": "0.1",
+            "name": "KuGou 酷狗音乐 (Synced)",
+            "version": "0.2",
             "author": "anonymous",
             "uri": "kugou.js",
             "dependency": {
@@ -24,8 +24,8 @@
             }
         },
         {
-            "name": "网易云音乐",
-            "version": "0.3",
+            "name": "NetEase 网易云音乐 - Chinese (Synced)",
+            "version": "0.4",
             "author": "ohyeah",
             "uri": "netease.js",
             "dependency": {
@@ -48,8 +48,8 @@
             }
         },
         {
-            "name": "QQ音乐",
-            "version": "0.1",
+            "name": "QQ Music 音乐 (Synced)",
+            "version": "0.2",
             "author": "ohyeah",
             "uri": "qqmusic.js",
             "dependency": {
