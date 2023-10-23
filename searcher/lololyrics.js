@@ -4,34 +4,20 @@ const lyricContainerElements = [];
 
 export function getConfig(cfg) {
 	cfg.name = 'Lololyrics (Unsynced)';
-	cfg.version = '0.1';
+	cfg.version = '0.2';
 	cfg.author = 'TT';
-	cfg.useRawMeta = false;
+	cfg.useRawMeta = true;
 }
 
 export function getLyrics(meta, man) {
 	const Clean = (text) => text
-		.replaceAll('&', 'and')
-		.replaceAll('@', 'at');
+		.replace(/\(.*\)|{.*}|\[.*\]|【.*】/g, '').normalize().trim().toLowerCase()
+		.replace(/[^a-z0-9\- !#$%'()*+,./:-?@\\[\]^_|~.]/g, '')
+		.replace(/@/g, 'at');
 
 	let lyricsId;
-	const artist = Clean(meta.artist);
-	const title = Clean(meta.title)
-		.replace(/\bCant(?=\s)/g, 'Can\'t')
-		.replace(/\bDont(?=\s)/g, 'Don\'t')
-		.replace(/\bhasnt(?=\s)/g, 'hasn\'t')
-		.replace(/\bhavent(?=\s)/g, 'haven\'t')
-		.replace(/\bIm(?=\s)/g, 'I\'m')
-		.replace(/\bId(?=\s)/g, 'I\'d')
-		.replace(/\bIll(?=\s)/g, 'I\'ll')
-		.replace(/\bIve(?=\s)/g, 'I\'ve')
-		.replace(/\bIts(?=\s)/g, 'It\'s')
-		.replace(/\byoud(?=\s)/g, 'you\'d')
-		.replace(/\byoull(?=\s)/g, 'you\'ll')
-		.replace(/\byouve(?=\s)/g, 'you\'ve')
-		.replace(/\bwont(?=\s)/g, 'won\'t')
-		.replace(/\bYoure(?=\s)/g, 'You\'re');
-
+	const artist = Clean(meta.rawArtist);
+	const title = Clean(meta.rawTitle);
 	const url = `https://www.lololyrics.com/artist/${artist}`;
 	const settings = { url, timeout: 5000 };
 
@@ -41,9 +27,9 @@ export function getLyrics(meta, man) {
 	request(settings, (err, res, body) => {
 		if (err || res.statusCode !== 200) return;
 
-		/** Sub-optimal method to get the Id from the results, will not find all results if the title has a .dot or on some 'apostrophes variants */
+		const cleanBodyLink = body.replace(/&amp;/g, '&').replace(/(<a[^>]*>.*?)[!#$%'()*+,./:-?@\\[\]^_|~.]*(.*?<\/a>)/gi, '$1$2');
 		const titleRegex = new RegExp(`<a[^>]*>${title}.*</a>`, 'i');
-		const match = body.match(titleRegex);
+		const match = cleanBodyLink.match(titleRegex);
 		lyricsId = match ? match[0].match(/\/lyrics\/(\d+)\.html/)[1] : null;
 	});
 
@@ -71,33 +57,12 @@ export function getLyrics(meta, man) {
 		}
 
 		const lyricMeta = man.createLyric();
-		lyricMeta.title = meta.title;
-		lyricMeta.artist = meta.artist;
+		lyricMeta.title = meta.rawTitle;
+		lyricMeta.artist = meta.rawArtist;
 		lyricMeta.lyricText = lyricText;
-		lyricMeta.location = url;
+		lyricMeta.location = lyricsUrl;
 		man.addLyric(lyricMeta);
 	});
-}
-
-function findUrl(rootElement) {
-	if (rootElement.type !== 'element' || !rootElement.children || rootElement.children.length === 0) {
-		return null;
-	}
-
-	if (rootElement.tagName === 'a' && rootElement.attributes) {
-		for (const attribute of rootElement.attributes || []) {
-			if (attribute.key === 'data-ctorig') {
-				return `${attribute.value}`;
-			}
-		}
-	}
-
-	for (const child of rootElement.children) {
-		const url = findUrl(child);
-		if (url) return url;
-	}
-
-	return null;
 }
 
 function findLyrics(rootElement) {
