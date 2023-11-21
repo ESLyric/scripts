@@ -63,7 +63,7 @@
         },
         {
             "name": "MiniLyrics",
-            "version": "0.4",
+            "version": "0.5",
             "author": "ohyeah & TT",
             "uri": "minilyrics.js",
             "dependency": {
