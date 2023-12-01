@@ -62,7 +62,7 @@
             }
         },
         {
-            "name": "MiniLyrics",
+            "name": "MiniLyrics (Synced)",
             "version": "0.5",
             "author": "ohyeah & TT",
             "uri": "minilyrics.js",
