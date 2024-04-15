@@ -257,17 +257,6 @@
             }
         },
         {
-            "name": "LyricsOnDemand (Unsynced)",
-            "version": "0.1",
-            "author": "TT",
-            "uri": "lyricsondemand.js",
-            "dependency": {
-                "libs": [
-                    "himalaya"
-                ]
-            }
-        },
-        {
             "name": "Metallum (Unsynced)",
             "version": "0.1",
             "author": "TT",
