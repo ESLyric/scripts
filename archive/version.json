@@ -74,6 +74,17 @@
             }
         },
         {
+            "name": "LRCLIB (Mixed)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "lrclib.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
             "name": "Genius (Unsynced)",
             "version": "0.2",
             "author": "ohyeah & TT",
