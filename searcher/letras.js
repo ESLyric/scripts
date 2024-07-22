@@ -4,7 +4,7 @@ const lyricContainerElements = [];
 
 export function getConfig(cfg) {
 	cfg.name = 'Letras (Unsynced)';
-	cfg.version = '0.1';
+	cfg.version = '0.2';
 	cfg.author = 'TT';
 	cfg.useRawMeta = false;
 }
@@ -60,7 +60,7 @@ function findLyrics(rootElement) {
 	}
 
 	for (const attribute of attributes) {
-		if (attribute.key === 'class' && attribute.value === 'lyric-original') {
+		if (attribute.key === 'class' && attribute.value.startsWith('lyric-original')) {
 			lyricContainerElements.push(rootElement);
 			return true;
 		}
