@@ -2,7 +2,7 @@
     "sources": [
         {
             "name": "酷狗音乐",
-            "version": "0.1",
+            "version": "0.2",
             "author": "anonymous",
             "uri": "kugou.js",
             "dependency": {
