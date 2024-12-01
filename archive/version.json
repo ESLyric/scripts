@@ -2,7 +2,7 @@
     "sources": [
         {
             "name": "酷狗音乐",
-            "version": "0.2",
+            "version": "0.1",
             "author": "anonymous",
             "uri": "kugou.js",
             "dependency": {
@@ -294,7 +294,7 @@
         {
             "name": "KRC Parser",
             "author": "ohyeah",
-            "version": "0.1",
+            "version": "0.2",
             "uri": "krc.js"
         },
         {
