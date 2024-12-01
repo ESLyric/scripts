@@ -1,7 +1,7 @@
 
 export function getConfig(cfg) {
     cfg.name = "KRC Parser";
-    cfg.version = "0.1";
+    cfg.version = "0.2";
     cfg.author = "ohyeah";
     cfg.parsePlainText = false;
     cfg.fileType = "krc";
@@ -9,26 +9,27 @@ export function getConfig(cfg) {
 
 export function parseLyric(context) {
     let zipData = xorKRC(context.lyricData);
-    if (!zipData)
+    if (!zipData) 
         return;
+
     let unzipData = zlib.uncompress(zipData.buffer);
-    if (unzipData == null)
+    if (unzipData == null) 
         return;
+
     context.lyricText = krc2lrc(arrayBufferToString(unzipData));
 }
 
 function xorKRC(rawData) {
-
-    if (null == rawData)
+    if (null == rawData) 
         return;
 
     let dataView = new Uint8Array(rawData);
     let magicBytes = [0x6b, 0x72, 0x63, 0x31];// 'k' , 'r' , 'c' ,'1'
-    if (dataView.length < magicBytes.length)
+    if (dataView.length < magicBytes.length) 
         return;
+
     for (let i = 0; i < magicBytes.length; ++i) {
-        if (dataView[i] != magicBytes[i])
-            return;
+        if (dataView[i] != magicBytes[i]) return;
     }
 
     let decryptedData = new Uint8Array(dataView.length - magicBytes.length);
@@ -43,11 +44,13 @@ function xorKRC(rawData) {
     return decryptedData;
 }
 
-// example
+// sample
+// [offset, duration]<offset, duration, 0>word
 // [1000,1200]<0,400,0>word1<400,200,0>word2<600,300,0>word3
-// [playback pos, duration]<word offset, word duration, 0>word
 function krc2lrc(krcText) {
     let lyricText = "";
+    let translateLyricContent = [];
+    let translateIndex = 0;
     let matches;
     let metaRegex = /^\[(\S+):(\S+)\]$/;
     let timestampsRegex = /^\[(\d+),(\d+)\]/;
@@ -55,6 +58,13 @@ function krc2lrc(krcText) {
     let lines = krcText.split(/[\r\n]/);
     for (const line of lines) {
         if (matches = metaRegex.exec(line)) { // meta info
+            if (matches[1] == 'language') {
+                let langObj = JSON.parse(atob(matches[2]));
+                let contentArrayObj = langObj['content'] || [];
+                if (contentArrayObj.length == 0 || contentArrayObj[0].type != 1) continue;
+                translateLyricContent = contentArrayObj[0].lyricContent || [];
+                continue;
+            }
             lyricText += matches[0] + "\r\n";
         } else if (matches = timestampsRegex.exec(line)) {
             let lyricLine = "";
@@ -69,6 +79,13 @@ function krc2lrc(krcText) {
                 lyricLine += "<" + formatTime(startTime + offset) + ">" + subWord;
             }
             lyricLine += "<" + formatTime(startTime + duration) + ">";
+            // translate text?
+            if (translateLyricContent.length > translateIndex) {
+                lyricLine += "\r\n";
+                lyricLine += "[" + formatTime(startTime) + "]" + translateLyricContent[translateIndex];
+                ++translateIndex;
+            }
+
             lyricText += lyricLine + "\r\n";
         }
     }
