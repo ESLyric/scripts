@@ -4,7 +4,7 @@ const lyricContainerElements = [];
 
 export function getConfig(cfg) {
 	cfg.name = 'Genius (Unsynced)';
-	cfg.version = '0.2';
+	cfg.version = '0.3';
 	cfg.author = 'ohyeah & TT';
 	cfg.useRawMeta = false;
 }
@@ -40,13 +40,14 @@ export function getLyrics(meta, man) {
 				lyricText = parseLyrics(element, lyricText);
 			});
 			if (lyricText === '') return;
-			const lyricMeta = man.createLyric();
-			lyricMeta.title = meta.title;
-			lyricMeta.artist = meta.artist;
-			lyricMeta.lyricText = lyricText;
-			lyricMeta.location = url;
-			man.addLyric(lyricMeta);
 		}
+
+		const lyricMeta = man.createLyric();
+		lyricMeta.title = meta.title;
+		lyricMeta.artist = meta.artist;
+		lyricMeta.lyricText = lyricText;
+		lyricMeta.location = url;
+		man.addLyric(lyricMeta);
 	});
 }
 
@@ -56,6 +57,11 @@ function findLyrics(rootElement) {
 	const attributes = rootElement.attributes || [];
 
 	if (type !== 'element' || !children || children.length === 0) {
+		return false;
+	}
+
+	// Skip elements with data-exclude-from-selection="true" for unwanted stuff
+	if (attributes.some(attr => attr.key === 'data-exclude-from-selection' && attr.value === 'true')) {
 		return false;
 	}
 
@@ -98,6 +104,12 @@ function parseLyrics(element, lyricText) {
 	const type = element.type || '';
 	const children = element.children || [];
 	const content = element.content || '';
+	const attributes = element.attributes || [];
+
+	// Skip elements with data-exclude-from-selection="true" for unwanted stuff
+	if (attributes.some(attr => attr.key === 'data-exclude-from-selection' && attr.value === 'true')) {
+		return lyricText;
+	}
 
 	if (type === 'text') {
 		return lyricText + content;
