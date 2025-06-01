@@ -65,7 +65,7 @@ const doRequest = (method, url, data, options) => new Promise((resolve, reject) 
 }).catch(error => console.log(error.message));
 
 export function getConfig(config) {
-	config.name = 'NetEase 网易云音乐 - English (Synced)';
+	config.name = 'NetEase - English (Synced)';
 	config.version = '0.4';
 	config.author = 'ohyeah & TT';
 }
