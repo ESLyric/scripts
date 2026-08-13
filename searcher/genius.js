@@ -164,7 +164,12 @@ function parseLyrics(element, lyricText) {
     if (tag === 'br') {
         return `${lyricText}\r\n`;
     }
-
+    
+    // Add a newline between div elements
+    if (tag === 'div' && lyricText !== '') {
+        lyricText += '\n';
+    }
+    
     for (const child of children) {
         lyricText = parseLyrics(child, lyricText);
     }
