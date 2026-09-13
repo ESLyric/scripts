@@ -32,26 +32,24 @@ export function getLyrics(meta, man) {
 		const bodyElement = htmlElement.children.find(element => element.type === 'element' && element.tagName === 'body');
 		if (!bodyElement) return;
 
-        // Keep this local so containers from previous songs
-        // aren't retained.
-        const lyricContainerElements = [];
+		// Keep this local so containers from previous songs
+		// aren't retained.
+		const lyricContainerElements = [];
 
-        // Find ALL lyric containers.
-        findLyrics(bodyElement, lyricContainerElements);
+		// Find ALL lyric containers.
+		findLyrics(bodyElement, lyricContainerElements);
 
-        if (lyricContainerElements.length === 0)
-            return;
+		if (lyricContainerElements.length === 0)
+			return;
 
-        let lyricText = '';
+		let lyricText = '';
 
-        // Parse every lyric container found.
-        for (const element of lyricContainerElements) {
-            lyricText = parseLyrics(element, lyricText);
-   
-		
-        }
+		// Parse every lyric container found.
+		for (const element of lyricContainerElements) {
+			lyricText = parseLyrics(element, lyricText);
+		}
 
-			if (lyricText === '') return;
+		if (lyricText === '') return;
 
 		const lyricMeta = man.createLyric();
 		lyricMeta.title = meta.title;
@@ -67,31 +65,29 @@ function findLyrics(rootElement, lyricContainerElements) {
 	const children = rootElement.children || [];
 	const attributes = rootElement.attributes || [];
 
-    if (type !== 'element') {
-        return;
-    }
+	if (type !== 'element') {
+		return;
+	}
 
 	// Skip elements with data-exclude-from-selection="true" for unwanted stuff
 	if (attributes.some(attr => attr.key === 'data-exclude-from-selection' && attr.value === 'true')) {
-        return;
-    }
+		return;
+	}
 
-    const hasLyricsContainer = attributes.some(attr =>attr.key === 'data-lyrics-container' && attr.value === 'true');
+	const hasLyricsContainer = attributes.some(attr => attr.key === 'data-lyrics-container' && attr.value === 'true');
 
-    const hasLyricsClass = attributes.some(attr => attr.key === 'class' && attr.value.startsWith('Lyrics_Container'));
+	const hasLyricsClass = attributes.some(attr => attr.key === 'class' && attr.value.startsWith('Lyrics_Container'));
 
-    // Add the matching element, but DON'T return.
-    // This allows us to continue searching for other containers.
-    if (hasLyricsContainer || hasLyricsClass) {
-        lyricContainerElements.push(rootElement);
-    }
+	// Add the matching element, but DON'T return.
+	// This allows us to continue searching for other containers.
+	if (hasLyricsContainer || hasLyricsClass) {
+		lyricContainerElements.push(rootElement);
+	}
 
-
-
-    // Continue searching through ALL children.
-    for (const child of children) {
-        findLyrics(child, lyricContainerElements);
-    }
+	// Continue searching through ALL children.
+	for (const child of children) {
+		findLyrics(child, lyricContainerElements);
+	}
 }
 
 function parseLyrics(element, lyricText) {
@@ -127,12 +123,12 @@ function parseLyrics(element, lyricText) {
 	if (tag === 'br') {
 		return `${lyricText}\r\n`;
 	}
-	
-    // Add a newline between div elements
-    if (tag === 'div' && lyricText !== '') {
-        lyricText += '\n';
-    }
-    
+
+	// Add a newline between div elements
+	if (tag === 'div' && lyricText !== '') {
+		lyricText += '\n';
+	}
+
 	for (const child of children) {
 		lyricText = parseLyrics(child, lyricText);
 	}
