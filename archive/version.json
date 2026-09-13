@@ -86,8 +86,8 @@
         },
         {
             "name": "Genius (Unsynced)",
-            "version": "0.3",
-            "author": "ohyeah & TT",
+            "version": "0.4",
+            "author": "ohyeah & TT & zeremy",
             "uri": "genius.js",
             "dependency": {
                 "libs": [
