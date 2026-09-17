@@ -16,7 +16,7 @@ export function getLyrics(meta, man) {
 
 	const params = {
 		user_language: 'en',
-		app_id: 'web-desktop-app-v1.0',
+		app_id: 'mac-ios-v2.0',
 		format: 'json',
 		subtitle_format: 'lrc',
 		q_track: meta.title,
@@ -30,7 +30,7 @@ export function getLyrics(meta, man) {
 	const headers = {};
 	headers.cookie = 'AWSELBCORS=0; AWSELB=0';
 
-	let url = 'https://apic-desktop.musixmatch.com/ws/1.1/track.search?';
+	let url = 'https://apic-appmobile.musixmatch.com/ws/1.1/track.search?';
 	url += querystring.stringify(params);
 
 	const settings = {
@@ -45,6 +45,14 @@ export function getLyrics(meta, man) {
 
 		try {
 			const obj = JSON.parse(body);
+			if (typeof obj.message.header.hint !== "undefined") {
+				if (obj.message.header.hint === "renew") {
+					log("Token expired or invalid and will regenerate on next request.");
+					man.setSvcData("token", '');
+				} else if(obj.message.header.hint === "captcha") log("Captcha required.");
+				else log("Unknown hint: " + obj.message.header.hint);
+				return;
+			}
 			const trackList = obj.message.body.track_list;
 			for (const trackObj of trackList) {
 				const track = trackObj.track;
@@ -98,12 +106,12 @@ export function getLyrics(meta, man) {
 }
 
 function queryLyric(token, id, isSync) {
-	const kUrl = `https://apic-desktop.musixmatch.com/ws/1.1/track.${isSync ? 'subtitle' : 'lyrics'}.get?`;
+	const kUrl = `https://apic-appmobile.musixmatch.com/ws/1.1/track.${isSync ? 'subtitle' : 'lyrics'}.get?`;
 	const kBodyKey = isSync ? 'subtitle' : 'lyrics';
 	const kLyricKey = isSync ? 'subtitle_body' : 'lyrics_body';
 	const params = {
 		user_language: 'en',
-		app_id: 'web-desktop-app-v1.0',
+		app_id: 'mac-ios-v2.0',
 		commontrack_id: id,
 		usertoken: token
 	};
@@ -127,6 +135,14 @@ function queryLyric(token, id, isSync) {
 
 		try {
 			const obj = JSON.parse(body);
+			if (typeof obj.message.header.hint !== "undefined") {
+				if (obj.message.header.hint === "renew") {
+					log("Token expired or invalid and will regenerate on next request.");
+					man.setSvcData("token", '');
+				} else if(obj.message.header.hint === "captcha") log("Captcha required.");
+				else log("Unknown hint: " + obj.message.header.hint);
+				return;
+			}
 			lyricText = obj.message.body[kBodyKey][kLyricKey];
 			if (lyricText == null) {
 				return;
@@ -143,10 +159,10 @@ function queryToken(man) {
 	let token = man.getSvcData('token');
 
 	if (token === '') {
-		const kUrl = 'https://apic-desktop.musixmatch.com/ws/1.1/token.get?';
+		const kUrl = 'https://apic-appmobile.musixmatch.com/ws/1.1/token.get?';
 		const params = {
 			user_language: 'en',
-			app_id: 'web-desktop-app-v1.0',
+			app_id: 'mac-ios-v2.0',
 			t: new Date().getTime()
 		};
 
@@ -169,6 +185,12 @@ function queryToken(man) {
 
 			try {
 				const obj = JSON.parse(body);
+				if (typeof obj.message.header.hint !== "undefined") {
+					if (obj.message.header.hint === "captcha") log("Captcha required.");
+					else log("Unknown hint: " + obj.message.header.hint);
+					token = "";
+					return;
+				}
 				token = obj.message.body.user_token || '';
 			} catch (e) {
 				log(`queryToken exception: ${e.message}`);
