@@ -1,9 +1,15 @@
-﻿import { parse } from 'himalaya/src/index.js';
+﻿/*
+ * 2022-08-20 ohyeah
+ * 2023-09-23 TT
+ * 2026-08-13 zeremy
+ */
+
+import { parse } from 'himalaya/src/index.js';
 
 export function getConfig(cfg) {
 	cfg.name = 'Genius (Unsynced)';
 	cfg.version = '0.4';
-	cfg.author = 'ohyeah & TT & zeremy';
+	cfg.author = 'Community';
 	cfg.useRawMeta = false;
 }
 

@@ -13,8 +13,8 @@
         },
         {
             "name": "Musixmatch (Synced)",
-            "version": "0.2",
-            "author": "ohyeah & TT",
+            "version": "0.3",
+            "author": "Community",
             "uri": "musixmatch.js",
             "dependency": {
                 "client": "0.5.2.1120",
@@ -87,7 +87,7 @@
         {
             "name": "Genius (Unsynced)",
             "version": "0.4",
-            "author": "ohyeah & TT & zeremy",
+            "author": "Community",
             "uri": "genius.js",
             "dependency": {
                 "libs": [

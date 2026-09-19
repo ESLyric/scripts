@@ -1,7 +1,13 @@
-﻿export function getConfig(cfg) {
+﻿/*
+ * 2022-07-25 ohyeah
+ * 2023-09-23 TT
+ * 2026-09-17 andrechris24
+ */
+
+export function getConfig(cfg) {
 	cfg.name = 'Musixmatch (Synced)';
-	cfg.version = '0.2';
-	cfg.author = 'ohyeah & TT';
+	cfg.version = '0.3';
+	cfg.author = 'Community';
 	cfg.useRawMeta = false;
 }
 
